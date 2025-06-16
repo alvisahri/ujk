@@ -2,13 +2,15 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 5.0" #contoh
+      version = "~> 5.0" 
     }
   }
 }
 
 provider "aws" {
-  region = ""
+  region = "ap-southeast-1" #jangan diganti
+  access_key = ""
+  secret_key = ""
 }
 
 resource "" "" {
@@ -130,11 +132,12 @@ resource "" {
   }
 }
 
-resource "" {
-  ami           = ""
-  instance_type = ""
+resource "" "" {
+  ami           = "ami-0b8607d2721c94a77" #jangan diganti
+  instance_type = "t2.micro" #jangan diganti
   subnet_id     = 
   security_groups = 
+  key_name        = ""
 
   user_data = <<-EOF
               #!/bin/bash
