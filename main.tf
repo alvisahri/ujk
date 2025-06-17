@@ -102,7 +102,7 @@ resource "" "" {
   }
 }
 
-resource "aws_instance" "aetherlock2_server" {
+resource "aws_instance" "" {
   ami           = "ami-0b8607d2721c94a77"
   instance_type = "t2.micro"
   subnet_id     = aws_subnet.public[0].id
@@ -119,7 +119,7 @@ resource "aws_instance" "aetherlock2_server" {
               EOF
               
   tags = {
-    Name = "WebServer-Test"
+    Name = ""
   }
 }
 
