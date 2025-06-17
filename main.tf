@@ -14,91 +14,91 @@ provider "aws" {
 }
 
 
-resource "aws_vpc" "main" {
-  cidr_block = "10.20.0.0/16"
+resource "" "" {
+  cidr_block = ""
   tags = {
-    Name = "aetherlock2-vpc"
+    Name = ""
   }
 }
 
-resource "aws_subnet" "public" {
-  count             = 2
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.20.${count.index + 1}.0/24" 
-  availability_zone = "ap-southeast-1${element(["a", "b"], count.index)}" 
-  map_public_ip_on_launch = true 
+resource "" "" {
+  count             = 
+  vpc_id            = 
+  cidr_block        = "" 
+  availability_zone = "" 
+  map_public_ip_on_launch = 
   tags = {
-    Name = "aetherlock2-public-subnet-${count.index + 1}"
+    Name = ""
   }
 }
 
-resource "aws_subnet" "private" {
-  count             = 2
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.20.10${count.index + 1}.0/24" 
-  availability_zone = "ap-southeast-1${element(["a", "b"], count.index)}"
+resource "" "" {
+  count             = 
+  vpc_id            = 
+  cidr_block        = "" 
+  availability_zone = ""
   tags = {
-    Name = "aetherlock2-private-subnet-${count.index + 1}"
+    Name = ""
   }
 }
 
 
-resource "aws_internet_gateway" "main_igw" {
-  vpc_id = aws_vpc.main.id
+resource "" "" {
+  vpc_id = 
   tags = {
-    Name = "aetherlock2-igw"
+    Name = ""
   }
 }
 
-resource "aws_route_table" "public_rt" {
-  vpc_id = aws_vpc.main.id
+resource "" "" {
+  vpc_id = 
   route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.main_igw.id
+    cidr_block = ""
+    gateway_id = 
   }
   tags = {
-    Name = "aetherlock2-public-rt"
+    Name = ""
   }
 }
 
-resource "aws_route_table_association" "public_assoc" {
-  count          = length(aws_subnet.public)
-  subnet_id      = aws_subnet.public[count.index].id
-  route_table_id = aws_route_table.public_rt.id
+resource "" "" {
+  count          = 
+  subnet_id      = 
+  route_table_id = 
 }
 
-resource "aws_security_group" "web_sg" {
-  name        = "-sg"
-  description = "Allow HTTP, HTTPS, and SSH access"
-  vpc_id      = aws_vpc.main.id
+resource "" "" {
+  name        = ""
+  description = ""
+  vpc_id      = 
 
   ingress {
-    description = "Allow HTTP"
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    description = ""
+    from_port   = 
+    to_port     = 
+    protocol    = ""
+    cidr_blocks = [""]
   }
   ingress {
-    description = "Allow HTTPS"
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    description = ""
+    from_port   = 
+    to_port     = 
+    protocol    = ""
+    cidr_blocks = [""]
   }
   ingress {
-    description = "Allow SSH from anywhere (untuk latihan)"
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    description = ""
+    from_port   = 
+    to_port     = 
+    protocol    = ""
+    cidr_blocks = [""]
   }
 
   egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1" 
-    cidr_blocks = ["0.0.0.0/0"]
+    from_port   = 
+    to_port     = 
+    protocol    = "" 
+    cidr_blocks = [""]
   }
 }
 
