@@ -2,142 +2,103 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 5.0" 
+      version = "~> 5.0"
     }
   }
 }
 
 provider "aws" {
-  region = "ap-southeast-1" #jangan diganti
-  access_key = ""
-  secret_key = ""
+  region     = "ap-southeast-1"
+  access_key = ""         
+  secret_key = "" 
 }
 
-resource "" "" {
-  cidr_block = ""
+resource "aws_vpc" "main" {
+  cidr_block = "10.20.0.0/16"
   tags = {
-    Name = ""
+    Name = "aetherlock2-vpc"
   }
 }
 
-resource "" {
-  count                   = 
-  vpc_id                  = 
-  cidr_block              = 
-  availability_zone       = 
-  map_public_ip_on_launch = 
+resource "aws_subnet" "public" {
+  count                   = 2
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = "10.20.${count.index + 1}.0/24"
+  availability_zone       = "ap-southeast-1${element(["a", "b"], count.index)}"
+  map_public_ip_on_launch = true
   tags = {
-    Name = ""
+    Name = "aetherlock2-public-subnet-${count.index + 1}"
   }
 }
 
-resource "" {
-  count             = 
-  vpc_id            = 
-  cidr_block        = ""
-  availability_zone = ""
+resource "aws_internet_gateway" "main_igw" {
+  vpc_id = aws_vpc.main.id
   tags = {
-    Name = ""
+    Name = "aetherlock2-igw"
   }
 }
 
-resource "" {
-  vpc_id = 
-  tags = {
-    Name = ""
-  }
-}
-
-resource "" {
-  vpc_id = 
+resource "aws_route_table" "public_rt" {
+  vpc_id = aws_vpc.main.id
   route {
-    cidr_block = ""
-    gateway_id = 
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.main_igw.id
   }
   tags = {
-    Name = ""
+    Name = "aetherlock2-public-rt"
   }
 }
 
-resource "" {
-  count          = 
-  subnet_id      = 
-  route_table_id = 
+resource "aws_route_table_association" "public_assoc" {
+  count          = length(aws_subnet.public)
+  subnet_id      = aws_subnet.public[count.index].id
+  route_table_id = aws_route_table.public_rt.id
 }
 
-resource "" {
-  domain = ""
-}
-
-resource "" "" {
-  allocation_id = 
-  subnet_id     = 
-  tags = {
-    Name = ""
-  }
-  depends_on = []
-}
-
-resource "" "" {
-  vpc_id = 
-  route {
-    cidr_block     = ""
-    nat_gateway_id = 
-  }
-  tags = {
-    Name = ""
-  }
-}
-
-resource "" {
-  count          = 
-  subnet_id      = 
-  route_table_id = 
-}
-
-resource "" {
-  name        = ""
-  description = ""
-  vpc_id      = 
+# Security Group
+resource "aws_security_group" "web_sg" {
+  name        = "aetherlock2-sg"
+  description = "Allow HTTP, HTTPS, and SSH access"
+  vpc_id      = aws_vpc.main.id
 
   ingress {
-    description = ""
-    from_port   = 
-    to_port     = 
-    protocol    = ""
-    cidr_blocks = [""]
+    description = "HTTP"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
-    description = ""
-    from_port   = 
-    to_port     = 
-    protocol    = ""
-    cidr_blocks = [""]
+    description = "HTTPS"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
-    description = ""
-    from_port   = 
-    to_port     = 
-    protocol    = ""
-    cidr_blocks = [""]
+    description = "SSH"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
-    from_port   = 
-    to_port     = 
-    protocol    = ""
-    cidr_blocks = [""]
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 }
 
-resource "" "" {
-  ami           = "ami-0b8607d2721c94a77" #jangan diganti
-  instance_type = "t2.micro" #jangan diganti
-  subnet_id     = 
-  security_groups = 
-  key_name        = ""
+resource "aws_instance" "aetherlock2_server" {
+  ami           = "ami-0b8607d2721c94a77" 
+  instance_type = "t2.micro"             
+  subnet_id     = aws_subnet.public[0].id
+  security_groups = [aws_security_group.web_sg.id]
+  key_name        = "ujk"                 
 
   user_data = <<-EOF
               #!/bin/bash
@@ -145,10 +106,10 @@ resource "" "" {
               sudo apt-get install -y nginx
               sudo systemctl start nginx
               sudo systemctl enable nginx
-              echo "<h1>UJK BNSP <ISI NAMA ANDA></h1>" | sudo tee /var/www/html/index.html #HAPUS TANDA <>
+              echo "<h1>UJK BNSP <nama kalian></h1>" | sudo tee /var/www/html/index.html
               EOF
 
   tags = {
-    Name = ""
+    Name = "WebServer-Test"
   }
 }
