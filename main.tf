@@ -150,7 +150,7 @@ resource "aws_instance" "aetherlock_server" {
               EOF
               
   tags = {
-    Name = ""
+    Name = "WebServer-Test"
   }
 }
 
